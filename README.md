@@ -1,6 +1,6 @@
-# LlamaCPP API Docker Setup
+# LlamaCPP Docker Setup Script
 
-This repository provides a **Dockerized LlamaCPP API** with a Python interface, allowing you to run Llama models locally and send requests via a simple Python script.
+This repository provides a **full setup script** for running LlamaCPP inside Docker on Ubuntu. The script automates installing Docker, downloading the model, building the Docker image, and running the container.
 
 ---
 
@@ -8,60 +8,50 @@ This repository provides a **Dockerized LlamaCPP API** with a Python interface, 
 
 | File | Description |
 |------|-------------|
-| `Dockerfile` | Builds the LlamaCPP API Docker image. |
-| `requirements.txt` | Python dependencies for the API and example script. |
-| `setup_llamacpp.sh` | Bash script to install Docker, clone/update the repo, download models, build the image, and run the container. |
-| `llama_api.py` | Python API wrapper for interacting with the LlamaCPP API. |
-| `example_request.py` | Example Python script showing how to send a prompt to the API. |
+| `setup_llamacpp.sh` | Bash script that installs Docker, downloads the model, builds the image, and runs the container. |
+| `llamacpp-docker/` | Repository folder containing the Dockerfile and related files (cloned by the script). |
 
 ---
 
 ## 🚀 Setup Instructions
 
-### 1. Run the Setup Script
-
-This will install Docker (if needed), download the model, build the image, and start the container:
+### 1. Make the Script Executable
 
 ```bash
 chmod +x setup_llamacpp.sh
+```
+
+### 2. Run the Script
+
+```bash
 ./setup_llamacpp.sh
 ```
 
-> The script automatically handles container conflicts and volume mapping for the models.
+The script performs the following actions:
 
-### 2. Verify the API
+1. Checks if `git` is installed, and installs it if missing.  
+2. Removes old Docker and Podman packages.  
+3. Installs Docker official packages and prerequisites.  
+4. Clones or updates the `llamacpp-docker` repository.  
+5. Ensures the `models` folder exists.  
+6. Downloads the specified Llama model if it is not already present.  
+7. Builds the Docker image named `llamacpp-api`.  
+8. Stops and removes any existing container named `llamacpp-api`.  
+9. Runs a new container named `llamacpp-api` on port 8000.  
 
-Test the running API with `curl`:
+> After the script completes, the container will be running and ready to accept requests.
+
+---
+
+## ✅ Test the API
+
+Use `curl` to test the running container:
 
 ```bash
 curl 'http://localhost:8000/generate?prompt=Hello+world'
 ```
 
-You should get a JSON response from the LlamaCPP model.
-
-### 3. Using the Python API
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Example usage:
-
-```python
-from llama_api import LlamaAPI
-
-api = LlamaAPI("http://localhost:8000")
-response = api.generate("Hello world")
-print(response)
-```
-
-You can also run the example script directly:
-
-```bash
-python example_request.py
-```
+You should receive a JSON response from the LlamaCPP model.
 
 ---
 
@@ -69,29 +59,28 @@ python example_request.py
 
 - Image name: `llamacpp-api`  
 - Container name: `llamacpp-api`  
-- Models folder is mounted into the container: `llamacpp-docker/models:/app/models`  
-- Default API port: `8000`  
+- Exposed API port: `8000`  
+- Models folder is mounted inside the container: `llamacpp-docker/models:/app/models`  
 
-To stop/remove the container:
+### Stop and Remove Container
 
 ```bash
 docker stop llamacpp-api
 docker rm llamacpp-api
 ```
 
-To rebuild the image after changes:
+### Rebuild Docker Image
 
 ```bash
-docker build -t llamacpp-api .
+docker build -t llamacpp-api llamacpp-docker
 ```
 
 ---
 
 ## ⚡ Tips
 
-- Always run `setup_llamacpp.sh` to ensure you have the latest model and repo updates.
-- You can map additional volumes or change ports by editing the `docker run` section in `setup_llamacpp.sh`.
-- If you want to reset Docker entirely, use the included cleanup commands before re-running the setup.
+- Always run the script to ensure Docker, the model, and the repository are up to date.  
+- If you want to reset Docker completely, you can remove all old containers and images before re-running the script.  
+- You can change the Docker port or image name by editing the last section of the script where `docker run` is called.  
 
 ---
-
