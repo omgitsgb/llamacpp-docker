@@ -46,6 +46,104 @@ The script performs the following:
 
 ---
 
+## ▶️ How to Run
+
+### 1. Build the Docker Image (if not already built)
+
+If you are inside the `llamacpp-docker` folder:
+
+```bash
+docker build -t llamacpp-api .
+```
+
+> The `.` tells Docker to use the current folder as the build context.
+
+---
+
+### 2. Run the Container
+
+```bash
+docker run -d -p 8000:8000 --name llamacpp-api llamacpp-api
+```
+
+- `-d` → run in detached mode  
+- `-p 8000:8000` → map container port 8000 to host  
+- `--name llamacpp-api` → container name (used to manage it later)
+
+---
+
+### 3. Check Running Containers
+
+```bash
+docker ps
+```
+
+This will list all running containers. Make sure `llamacpp-api` is listed.
+
+---
+
+### 4. Handling Name Conflicts
+
+If you see a conflict like:
+
+```
+Conflict. The container name "/llamacpp-api" is already in use...
+```
+
+Stop and remove the old container:
+
+```bash
+docker stop llamacpp-api
+docker rm llamacpp-api
+```
+
+Then run the container again.
+
+> Or use a different container name:
+
+```bash
+docker run -d -p 8000:8000 --name llamacpp-api2 llamacpp-api
+```
+
+---
+
+### 5. Test the API
+
+```bash
+curl "http://localhost:8000/generate?prompt=Hello+world"
+```
+
+If the container is running correctly, you should get a JSON response from the model.
+
+---
+
+### 6. Stop the Container
+
+```bash
+docker stop llamacpp-api
+docker rm llamacpp-api
+```
+
+Or for a differently named container:
+
+```bash
+docker stop llamacpp-api2
+docker rm llamacpp-api2
+```
+
+---
+
+### 7. Run Interactively for Debugging
+
+```bash
+docker run -it --rm -p 8000:8000 llamacpp-api bash
+uvicorn llama_api:app --host 0.0.0.0 --port 8000
+```
+
+This is useful if the container exits immediately and you need to check logs or permissions.
+
+---
+
 ## ✅ Test the API
 
 Test the running container with `curl`:
