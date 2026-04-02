@@ -101,6 +101,7 @@ docker rm llamacpp-api
 ### Rebuild Docker Image
 
 ```bash
+cd ~
 docker build -t llamacpp-api llamacpp-docker
 ```
 
